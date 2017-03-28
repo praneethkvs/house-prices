@@ -36,8 +36,12 @@ skewed_feats <- skewed_feats[abs(skewed_feats) > .75]
 ##Taking log transformations of features with Skewness more than .75
 for (x in names(skewed_feats)) {fullnona[[x]] <- log(fullnona[[x]]+1)}
 
+#Use dummyVars function in caret package for one-hot encoding of Categorical variables
+dummies <- dummyVars(~., data = fullnona)
+dummiesdf <- data.frame(predict(dummies,newdata = fullnona))
 
-fullnonanum <- data.frame(lapply(fullnona,as.numeric))
+fullnonanum <- dummiesdf
+
 
 ##split into test and train
 trainnum <- fullnonanum[1:1460,]
@@ -45,7 +49,7 @@ testnum <- fullnonanum[1461:2919,]
 
 ##Using Caret package for Cross Validation.
 library(caret)
-tr.control <- trainControl(method="repeatedcv", number = 5,repeats = 5)
+tr.control <- trainControl(method="repeatedcv", number = 10,repeats = 10)
 
 #Ridge regression model
 
@@ -58,9 +62,9 @@ ridge_model <- train(SalePrice~., data=trainnum,method="glmnet",metric="RMSE",
 
 ridge_preds <- exp(predict(ridge_model,newdata = testnum))-1
 
-write.csv(data.frame(Id=test$Id,SalePrice=ridge_preds),"ridge_preds.csv",row.names = F)
+write.csv(data.frame(Id=test$Id,SalePrice=ridge_preds),"ridgepreds.csv",row.names = F)
 
-##ridge_preds scored 0.13428 on Kaggle Public Leaderboard.
+##ridge_preds scored 0.13360 on Kaggle Public Leaderboard.
 
 
 #Lasso Regression Model
@@ -74,5 +78,5 @@ lassopreds <- exp(predict(lasso_model,newdata = testnum))-1
 
 write.csv(data.frame(Id=test$Id,SalePrice=lassopreds),"lasso_preds.csv",row.names = F)
 
-##lasso_preds scored 0.12991 on Kaggle Public Leaderboard.
+##lasso_preds scored 0.12500 on Kaggle Public Leaderboard.
 
