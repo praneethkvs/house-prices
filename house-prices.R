@@ -58,7 +58,7 @@ ridge_model <- train(SalePrice~., data=trainnum,method="glmnet",metric="RMSE",
 
 ridge_preds <- exp(predict(ridge_model,newdata = testnum))-1
 
-write.csv(data.frame(Id=test$Id,SalePrice=ridge_preds),"ridgepreds.csv",row.names = F)
+write.csv(data.frame(Id=test$Id,SalePrice=ridge_preds),"ridge_preds.csv",row.names = F)
 
 ##ridge_preds scored 0.13428 on Kaggle Public Leaderboard.
 
